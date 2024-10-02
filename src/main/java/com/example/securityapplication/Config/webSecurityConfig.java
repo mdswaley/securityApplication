@@ -1,5 +1,7 @@
 package com.example.securityapplication.Config;
 
+import com.example.securityapplication.Filters.JwtAuthFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,10 +13,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class webSecurityConfig {
+
+    private final JwtAuthFilter jwtAuthFilter;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
@@ -25,15 +31,16 @@ public class webSecurityConfig {
         httpSecurity
                 .authorizeHttpRequests(auth-> auth
                         .requestMatchers("/post","/auth/**").permitAll() //now this request path is public for all (/post/**) this is for all request get public
-                        .requestMatchers("/post/**").hasAnyRole("ADMIN") // only admin can log in inside /post/**
+                        //.requestMatchers("/post/**").hasAnyRole("ADMIN") // only admin can log in inside /post/**
                         .anyRequest().authenticated()) // now we add authorize for any request and we can authenticate it.
 
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessionConfig->sessionConfig
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)); //NEVER:- create session never use
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //NEVER:- create session never use
                                                                            // ALWAYS:- can create and also use
                                                                             //IF_REQUIRED:-not create but use if it is present
                                                                             //STATELESS:- neither create nor use
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
             //    .formLogin(Customizer.withDefaults());
 
         return httpSecurity.build();
@@ -56,10 +63,5 @@ public class webSecurityConfig {
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration conf) throws Exception{
         return conf.getAuthenticationManager();
-    }
-
-    @Bean
-    PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
     }
 }

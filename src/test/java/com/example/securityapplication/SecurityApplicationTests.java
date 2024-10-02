@@ -12,7 +12,7 @@ class SecurityApplicationTests {
     private JWTService jwtService;
     @Test
     void contextLoads() {
-        User user = new User(4L,"adb@gmail.com","123");
+        User user = new User(4L,"adb@gmail.com","123","MD");
         String token = jwtService.generateToken(user);
         System.out.println(token);
 

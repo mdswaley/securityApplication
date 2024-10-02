@@ -3,15 +3,18 @@ package com.example.securityapplication.Service;
 
 import com.example.securityapplication.Dto.PostDto;
 import com.example.securityapplication.Entity.PostEntity;
+import com.example.securityapplication.Entity.User;
 import com.example.securityapplication.Exception.ResourceNotFoundException;
 import com.example.securityapplication.Repository.PostRepo;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+@Slf4j
 @Service
 public class PostService {
     private final PostRepo postRepo;
@@ -39,6 +42,10 @@ public class PostService {
     }
 
     public PostDto getData(Long id) {
+        User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal(); // here we get our user from SecurityContextHolder
+
+        log.info("User {}",user);
+
         isExistsByEmployeeId(id);
         PostEntity postEntity = postRepo.findById(id).orElse(null);
         return modelMapper.map(postEntity,PostDto.class);
