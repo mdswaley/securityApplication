@@ -1,7 +1,6 @@
 package com.example.securityapplication.Service;
 
 import com.example.securityapplication.Entity.User;
-import com.example.securityapplication.Filters.JwtAuthFilter;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -27,13 +26,22 @@ public class JWTService {
         return Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(User user){
+    public String generateAccessToken(User user){
         return Jwts.builder()
                 .subject(user.getId().toString())
                 .claim("email",user.getEmail())
                 .claim("role", Set.of("USER","ADMIN"))
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000*60)) //expired after 1min
+                .signWith(getSecretKey())
+                .compact();
+    }
+
+    public String generateRefreshToken(User user){
+        return Jwts.builder()
+                .subject(user.getId().toString())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 1000L*60*60*24*30*6)) //expired after 1min
                 .signWith(getSecretKey())
                 .compact();
     }

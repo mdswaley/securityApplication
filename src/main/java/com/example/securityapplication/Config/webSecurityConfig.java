@@ -1,9 +1,11 @@
 package com.example.securityapplication.Config;
 
 import com.example.securityapplication.Filters.JwtAuthFilter;
+import com.example.securityapplication.Filters.LoggingFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -40,7 +42,11 @@ public class webSecurityConfig {
                                                                            // ALWAYS:- can create and also use
                                                                             //IF_REQUIRED:-not create but use if it is present
                                                                             //STATELESS:- neither create nor use
+//                if you use order annotation then no need to handle filter there
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+
+
             //    .formLogin(Customizer.withDefaults());
 
         return httpSecurity.build();
