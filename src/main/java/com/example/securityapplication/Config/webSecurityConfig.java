@@ -2,6 +2,7 @@ package com.example.securityapplication.Config;
 
 import com.example.securityapplication.Filters.JwtAuthFilter;
 import com.example.securityapplication.Filters.LoggingFilter;
+import com.example.securityapplication.handler.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class webSecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
@@ -32,7 +34,7 @@ public class webSecurityConfig {
 //        but with service bean we can't do this bcz of repository it check is user details present in the database or not
         httpSecurity
                 .authorizeHttpRequests(auth-> auth
-                        .requestMatchers("/post","/auth/**").permitAll() //now this request path is public for all (/post/**) this is for all request get public
+                        .requestMatchers("/post","/auth/**","/home.html","/logout/**").permitAll() //now this request path is public for all (/post/**) this is for all request get public
                         //.requestMatchers("/post/**").hasAnyRole("ADMIN") // only admin can log in inside /post/**
                         .anyRequest().authenticated()) // now we add authorize for any request and we can authenticate it.
 
@@ -44,6 +46,10 @@ public class webSecurityConfig {
                                                                             //STATELESS:- neither create nor use
 //                if you use order annotation then no need to handle filter there
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+//                .oauth2Login(oauthConf->oauthConf
+//                        .failureUrl("/login?error=true")
+//                        .successHandler(oAuth2SuccessHandler)
+//                );
 
 
 

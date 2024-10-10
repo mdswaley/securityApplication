@@ -42,6 +42,10 @@ public class UserService implements UserDetailsService {
                 new ResourceNotFoundException("User with id "+userId+" is not present."));
     }
 
+    public User getUsrByEmail(String email) {
+        return userRepo.findByEmail(email).orElse(null);
+    }
+
     public UserDto signUp(SignUpDto signUpDto) {
         Optional<User> user = userRepo.findByEmail(signUpDto.getEmail());
         if (user.isPresent()){
@@ -53,6 +57,10 @@ public class UserService implements UserDetailsService {
 
         User save = userRepo.save(createUser);
         return modelMapper.map(save,UserDto.class);
+    }
+
+    public User save(User newUser) {
+        return userRepo.save(newUser);
     }
 
 
