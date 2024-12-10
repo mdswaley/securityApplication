@@ -21,5 +21,8 @@ public class PostEntity {
     //@NotAudited // this is not auditing means what ever make change in descr it is not reflect or trigger in database (who and when)
     private String descr;
 
+    @ManyToOne
+    private User author;
+
 
 }

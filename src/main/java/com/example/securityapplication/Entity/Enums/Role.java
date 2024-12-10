@@ -1,6 +1,6 @@
 package com.example.securityapplication.Entity.Enums;
 
-public enum Roles {
+public enum Role {
     USER,
     CREATOR,
     ADMIN

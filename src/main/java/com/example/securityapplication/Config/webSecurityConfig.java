@@ -1,30 +1,29 @@
 package com.example.securityapplication.Config;
 
 import com.example.securityapplication.Filters.JwtAuthFilter;
-import com.example.securityapplication.Filters.LoggingFilter;
 import com.example.securityapplication.handler.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static com.example.securityapplication.Entity.Enums.Roles.ADMIN;
-import static com.example.securityapplication.Entity.Enums.Roles.CREATOR;
+import static com.example.securityapplication.Entity.Enums.Permission.*;
+import static com.example.securityapplication.Entity.Enums.Role.ADMIN;
+import static com.example.securityapplication.Entity.Enums.Role.CREATOR;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity(securedEnabled = true)
 public class webSecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
@@ -41,9 +40,14 @@ public class webSecurityConfig {
 //        but with service bean we can't do this bcz of repository it check is user details present in the database or not
         httpSecurity
                 .authorizeHttpRequests(auth-> auth
-                        .requestMatchers(permitRout).permitAll() //now this request path is public for all (/post/**) this is for all request get public
-                        .requestMatchers(HttpMethod.GET,"/post/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/post/**").hasAnyRole(ADMIN.name(),CREATOR.name())
+//                        .requestMatchers(permitRout).permitAll() //now this request path is public for all (/post/**) this is for all request get public
+//                        .requestMatchers(HttpMethod.GET,"/post/**").permitAll()
+//                        .requestMatchers(HttpMethod.POST,"/post/**").hasAnyRole(ADMIN.name(),CREATOR.name())
+//                        .requestMatchers(HttpMethod.POST,"/post/**").hasAuthority(POST_CREATE.name())
+//                        .requestMatchers(HttpMethod.PUT,"/post/**").hasAuthority(POST_UPDATE.name())
+//                        .requestMatchers(HttpMethod.DELETE,"/post/**").hasAuthority(POST_DELETE.name())
+                        .requestMatchers("/post/**").authenticated()
+                        
                         .anyRequest().authenticated()) // now we add authorize for any request and we can authenticate it.
 
                 .csrf(AbstractHttpConfigurer::disable)

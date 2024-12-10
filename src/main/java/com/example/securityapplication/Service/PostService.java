@@ -26,7 +26,9 @@ public class PostService {
     }
 
     public PostDto addData(PostDto postDto){
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         PostEntity postEntity = modelMapper.map(postDto, PostEntity.class);
+        postEntity.setAuthor(user);
         PostEntity saveEntity = postRepo.save(postEntity);
         return modelMapper.map(saveEntity,PostDto.class);
     }

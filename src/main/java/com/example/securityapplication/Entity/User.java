@@ -1,7 +1,7 @@
 package com.example.securityapplication.Entity;
 
-import com.example.securityapplication.Entity.Enums.Permission;
-import com.example.securityapplication.Entity.Enums.Roles;
+import com.example.securityapplication.Entity.Enums.Role;
+import com.example.securityapplication.Utils.PermissionMapping;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,9 +9,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -32,21 +31,18 @@ public class User implements UserDetails {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    private Set<Roles> roles;
+    private Set<Role> roles;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    private Set<Permission> permissions;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Set<SimpleGrantedAuthority> authorities =  roles.stream()
-                .map(roles1 -> new SimpleGrantedAuthority("ROLE_"+roles1.name()))
-                .collect(Collectors.toSet()); // now we can also store the role authorities provided by admin
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
 
-        permissions.forEach(
-                permission -> authorities.add(new SimpleGrantedAuthority(permission.name()))
-        );
+        roles.forEach(roles1 -> {
+            Set<SimpleGrantedAuthority> permission = PermissionMapping.getRoles(roles1);
+            authorities.addAll(permission);
+            authorities.add(new SimpleGrantedAuthority("ROLE_"+roles1.name()));
+        });
 
         return authorities;
 
