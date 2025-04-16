@@ -16,10 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static com.example.securityapplication.Entity.Enums.Permission.*;
-import static com.example.securityapplication.Entity.Enums.Role.ADMIN;
-import static com.example.securityapplication.Entity.Enums.Role.CREATOR;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -40,7 +36,7 @@ public class webSecurityConfig {
 //        but with service bean we can't do this bcz of repository it check is user details present in the database or not
         httpSecurity
                 .authorizeHttpRequests(auth-> auth
-//                        .requestMatchers(permitRout).permitAll() //now this request path is public for all (/post/**) this is for all request get public
+                        .requestMatchers(permitRout).permitAll() //now this request path is public for all (/post/**) this is for all request get public
 //                        .requestMatchers(HttpMethod.GET,"/post/**").permitAll()
 //                        .requestMatchers(HttpMethod.POST,"/post/**").hasAnyRole(ADMIN.name(),CREATOR.name())
 //                        .requestMatchers(HttpMethod.POST,"/post/**").hasAuthority(POST_CREATE.name())

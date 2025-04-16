@@ -13,16 +13,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
 
     private final UserService userService;
@@ -51,15 +50,46 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<LoginResponseDto> refresh(HttpServletRequest request){
-        String refresh = Arrays.stream(request.getCookies())
+    public ResponseEntity<LoginResponseDto> refresh(HttpServletRequest request, HttpServletResponse response) {
+        String oldRefreshToken = Arrays.stream(request.getCookies())
                 .filter(cookie -> "refreshToken".equals(cookie.getName()))
                 .findFirst()
                 .map(Cookie::getValue)
-                .orElseThrow(()-> new AuthenticationServiceException("Refresh Token not Found Inside the Cookies."));
+                .orElseThrow(() -> new AuthenticationServiceException("Refresh Token not Found Inside the Cookies."));
 
-        LoginResponseDto loginResponseDto = authService.refreshToken(refresh);
+
+        LoginResponseDto loginResponseDto = authService.rotateTokens(oldRefreshToken);
+
+        // Set the new refresh token as a cookie
+        Cookie newRefreshTokenCookie = new Cookie("refreshToken", loginResponseDto.getRefreshToken());
+        newRefreshTokenCookie.setHttpOnly(true);
+        newRefreshTokenCookie.setSecure("production".equals(devEnv));
+        newRefreshTokenCookie.setPath("/auth");
+        response.addCookie(newRefreshTokenCookie);
 
         return ResponseEntity.ok(loginResponseDto);
+    }
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request,HttpServletResponse response){
+        String refreshToken = Arrays.stream(request.getCookies())
+                .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElseThrow(() -> new IllegalStateException("Refresh token not found in cookies"));
+
+
+        authService.deleteSessionByRefreshToken(refreshToken);
+
+
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setMaxAge(0);
+        cookie.setPath("/auth");
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok("Logged out successfully.");
     }
 }

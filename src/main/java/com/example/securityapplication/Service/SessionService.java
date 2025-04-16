@@ -44,13 +44,4 @@ public class SessionService {
         sessionRepo.save(session);
     }
 
-    public void deleteSession(Long userId) {
-        List<Session> session = sessionRepo.findByUserId(userId);
-
-        if (session.isEmpty()) {
-            throw new SessionAuthenticationException("No sessions found for user ID: " + userId);
-        }
-        sessionRepo.deleteAll(session);
-    }
-
 }

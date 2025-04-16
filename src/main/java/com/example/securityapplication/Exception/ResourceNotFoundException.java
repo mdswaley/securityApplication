@@ -1,6 +1,8 @@
 package com.example.securityapplication.Exception;
 
-public class ResourceNotFoundException extends RuntimeException{
+import org.springframework.expression.spel.CompiledExpression;
+
+public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {
         super(message);
     }

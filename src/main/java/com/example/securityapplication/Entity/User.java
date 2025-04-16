@@ -40,8 +40,8 @@ public class User implements UserDetails {
 
         roles.forEach(roles1 -> {
             Set<SimpleGrantedAuthority> permission = PermissionMapping.getRoles(roles1);
-            authorities.addAll(permission);
-            authorities.add(new SimpleGrantedAuthority("ROLE_"+roles1.name()));
+            authorities.addAll(permission); // adding permission(like user_view,post_create etc.) related to the user role(user,admin and creator)
+            authorities.add(new SimpleGrantedAuthority("ROLE_"+roles1.name())); // also add role of the user (like user,admin and creator)
         });
 
         return authorities;
